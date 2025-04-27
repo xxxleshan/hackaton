@@ -1,0 +1,36 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:15
+    restart: always
+    env_file:
+      - ../.env                # содержит POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql   # создаст таблицы при первом запуске
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    restart: on-failure
+    env_file:
+      - ../.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  init-data:
+    image: smart-purchases-backend:latest   # тот же образ, что backend
+    depends_on:
+      - db
+    env_file:
+      - ../.env
+    entrypoint: ["python", "insertdata.py"]  # запустит скрипт заполнения
+    # После выполнения контейнер завершится автоматически
+
+volumes:
+  postgres_data:

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>API Test Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    section { margin-bottom: 20px; }
+    input, button { margin: 5px 0; padding: 5px; }
+    pre { background: #f0f0f0; padding: 10px; max-height: 400px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>Smart Purchases API Test</h1>
+
+  <!-- REGISTER -->
+  <section>
+    <h2>Регистрация</h2>
+    <input id="regFirst" placeholder="Имя"><br>
+    <input id="regMiddle" placeholder="Отчество"><br>
+    <input id="regLast" placeholder="Фамилия"><br>
+    <input id="regEmail" placeholder="Email"><br>
+    <input id="regPhone" placeholder="Телефон"><br>
+    <input id="regPassword" type="password" placeholder="Пароль"><br>
+    <input id="regDob" type="date" placeholder="Дата рождения"><br>
+    <button onclick="doRegister()">Зарегистрироваться</button>
+  </section>
+
+  <!-- LOGIN -->
+  <section>
+    <h2>Авторизация</h2>
+    <input id="loginEmail" placeholder="Email"><br>
+    <input id="loginPassword" type="password" placeholder="Пароль"><br>
+    <button onclick="doLogin()">Войти</button>
+  </section>
+
+  <!-- ASSIGN CATEGORY -->
+  <section>
+    <h2>Назначить категорию кешбэка</h2>
+    <input id="assignUserId" placeholder="User ID"><br>
+    <input id="assignCatId" placeholder="Category ID"><br>
+    <button onclick="doAssignCategory()">Назначить</button>
+  </section>
+
+  <!-- UPLOAD RECEIPT -->
+  <section>
+    <h2>Загрузить чек</h2>
+    <input id="receiptFile" type="file"><br>
+    <input id="uploadUserId" placeholder="User ID"><br>
+    <button onclick="doUploadReceipt()">Загрузить</button>
+  </section>
+
+  <!-- RECEIPTS -->
+  <section>
+    <h2>Траты (список чеков)</h2>
+    <button onclick="doReceipts()">Получить мои траты</button>
+  </section>
+
+  <!-- STATS -->
+  <section>
+    <h2>Статистика</h2>
+    <button onclick="doStatsCategories()">По категориям</button>
+    <button onclick="doStatsMonthly()">По месяцам</button>
+  </section>
+
+  <!-- RECOMMENDATIONS -->
+  <section>
+    <h2>Рекомендации</h2>
+    <button onclick="doRecommendations()">Получить рекомендации</button>
+  </section>
+
+  <!-- Output -->
+  <h2>Ответ сервера</h2>
+  <pre id="output"></pre>
+
+<script>
+  const baseUrl = 'http://localhost:8000';
+  let token = '';
+
+  function show(res) {
+    document.getElementById('output').textContent = JSON.stringify(res, null, 2);
+  }
+
+  async function doRegister() {
+    const body = {
+      first_name: document.getElementById('regFirst').value,
+      middle_name: document.getElementById('regMiddle').value,
+      last_name: document.getElementById('regLast').value,
+      email: document.getElementById('regEmail').value,
+      phone: document.getElementById('regPhone').value,
+      password: document.getElementById('regPassword').value,
+      date_of_birthday: document.getElementById('regDob').value
+    };
+    const res = await fetch(baseUrl + '/auth/register', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+    });
+    show(await res.json());
+  }
+
+  async function doLogin() {
+    const body = {
+      email: document.getElementById('loginEmail').value,
+      password: document.getElementById('loginPassword').value
+    };
+    const res = await fetch(baseUrl + '/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (data.access_token) {
+      token = data.access_token;
+      show({message: 'Авторизация успешна'});
+    } else {
+      show(data);
+    }
+  }
+
+  async function doAssignCategory() {
+    const uid = document.getElementById('assignUserId').value;
+    const cid = document.getElementById('assignCatId').value;
+    const res = await fetch(`${baseUrl}/users/${uid}/categories/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({category_id: parseInt(cid)})
+    });
+    show(await res.json());
+  }
+
+  async function doUploadReceipt() {
+    const fileInput = document.getElementById('receiptFile');
+    const uid = document.getElementById('uploadUserId').value;
+    const form = new FormData();
+    form.append('file', fileInput.files[0]);
+    form.append('user_id', uid);
+    const res = await fetch(baseUrl + '/receipts/upload', {
+      method: 'POST',
+      headers: {'Authorization': 'Bearer ' + token},
+      body: form
+    });
+    show(await res.json());
+  }
+
+  async function doReceipts() {
+    const res = await fetch(baseUrl + '/receipts/', {
+      headers: {'Authorization': 'Bearer ' + token}
+    });
+    show(await res.json());
+  }
+
+  async function doStatsCategories() {
+    const res = await fetch(baseUrl + '/stats/categories', {
+      headers: {'Authorization': 'Bearer ' + token}
+    });
+    show(await res.json());
+  }
+
+  async function doStatsMonthly() {
+    const res = await fetch(baseUrl + '/stats/monthly', {
+      headers: {'Authorization': 'Bearer ' + token}
+    });
+    show(await res.json());
+  }
+
+  async function doRecommendations() {
+    const res = await fetch(baseUrl + '/recommendations/', {
+      headers: {'Authorization': 'Bearer ' + token}
+    });
+    show(await res.json());
+  }
+</script>
+</body>
+</html>

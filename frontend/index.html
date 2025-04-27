@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Purchases</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header><h1>Smart Purchases</h1></header>
+  <nav>
+    <button data-tab="register">Регистрация</button>
+    <button data-tab="login">Вход</button>
+    <button data-tab="dashboard" disabled style="display:none">Дашборд</button>
+  </nav>
+  <main>
+          <section id="register" class="tab active">
+            <h2>Регистрация</h2>
+            <form id="form-register">
+              <input id="regFirst"    name="first_name"        placeholder="Имя" required>
+              <input id="regMiddle"   name="middle_name"       placeholder="Отчество">
+              <input id="regLast"     name="last_name"         placeholder="Фамилия" required>
+              <input id="regEmail"    name="email"             placeholder="Email" required>
+              <input id="regPhone"    name="phone"             placeholder="Телефон" required>
+              <input id="regPassword" name="password"          type="password" placeholder="Пароль" required>
+              <input id="regDob"      name="date_of_birthday"  type="date"     required>
+              <button type="submit">Зарегистрироваться</button>
+            </form>
+            <pre id="regOutput"></pre>
+          </section>
+      
+          <section id="login" class="tab">
+            <h2>Вход</h2>
+            <form id="form-login">
+              <input id="loginEmail"    name="email"    placeholder="Email" required>
+              <input id="loginPassword" name="password" type="password" placeholder="Пароль" required>
+              <button type="submit">Войти</button>
+            </form>
+            <pre id="loginOutput"></pre>
+          </section>
+      
+          <section id="dashboard" class="tab">
+            <h2>Дашборд</h2>
+            <div class="buttons">
+              <button data-section="upload">Загрузить чек</button>
+              <button data-section="receipts">Мои траты</button>
+              <button data-section="stats">Статистика</button>
+              <button data-section="recs">Рекомендации</button>
+            </div>
+      
+            <div id="upload" class="subsection">
+              <h3>Загрузка чека</h3>
+              <input id="uploadFile" type="file">
+              <button id="btnUpload">Загрузить</button>
+              <pre id="uploadOutput"></pre>
+            </div>
+      
+            <div id="receipts" class="subsection">
+              <h3>Список чеков</h3>
+              <table id="receiptsTable">
+                <thead><tr><th>ID</th><th>Магазин</th><th>Сумма</th><th>Дата</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+      
+            <div id="stats" class="subsection">
+              <h3>Статистика по категориям</h3>
+              <canvas id="chartCategories"></canvas>
+              <h3>Траты по месяцам</h3>
+              <canvas id="chartMonthly"></canvas>
+            </div>
+      
+            <div id="recs" class="subsection">
+              <h3>Рекомендации</h3>
+              <div class="recs-cards" id="recsList"></div>
+            </div>
+          </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
